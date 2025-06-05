@@ -38,8 +38,8 @@ jobs:
             sudo yum install -y docker
             sudo service docker start
             sudo usermod -aG docker ec2-user
-            docker --version
-            docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/my-app:latest
-            docker stop my-app || true && docker rm my-app || true
-            docker run -d --name my-app -p 80:3000 ${{ secrets.DOCKERHUB_USERNAME }}/my-app:latest
+            sudo docker --version
+            sudo docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
+            sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/my-app:latest
+            sudo docker stop my-app || true && docker rm my-app || true
+            sudo docker run -d --name my-app -p 80:3000 ${{ secrets.DOCKERHUB_USERNAME }}/my-app:latest
