@@ -26,16 +26,20 @@ jobs:
       - name: Push Docker image
         run: |
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/my-app:latest
-          
-      - name: Deploy to EC2
+
+      - name: Deploy on EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
-         host: ${{ secrets.EC2_HOST }}
-         username: ec2-user # or ubuntu
-         key: ${{ secrets.EC2_SSH_KEY }}
-         script: |
-           docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
-           docker pull ${{ secrets.DOCKERHUB_USERNAME }}/my-app:latest
-           docker stop my-app || true && docker rm my-app || true
-           docker run -d --name my-app -p 80:3000 ${{ secrets.DOCKERHUB_USERNAME }}/my-app:latest
-           
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user  # use "ec2-user" for Amazon Linux
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            sudo yum update -y
+            sudo yum install -y docker
+            sudo service docker start
+            sudo usermod -aG docker ec2-user
+            docker --version
+            docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/my-app:latest
+            docker stop my-app || true && docker rm my-app || true
+            docker run -d --name my-app -p 80:3000 ${{ secrets.DOCKERHUB_USERNAME }}/my-app:latest
