@@ -13,47 +13,44 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    # Configure AWS credentials (for both private and public ECR)
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v2
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-east-1  # Required for ECR Public
+        aws-region: ${{ secrets.AWS_REGION }}
 
-    # 🔐 Login to ECR Public
-    - name: Login to Amazon ECR Public
-      run: |
-        aws ecr-public get-login-password --region us-east-1 | docker login \
-          --username AWS --password-stdin public.ecr.aws
-
-    # 🔐 Login to Private ECR
-    - name: Login to Amazon ECR (Private)
+    - name: Login to Amazon ECR
+      id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
-    # Optional: Docker Hub login if needed
     - name: Log in to Docker Hub
       uses: docker/login-action@v3
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    # 🛠️ Build and push to Docker Hub
-    - name: Build and Push to Docker Hub
+    - name: Build Docker image
       run: |
-        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/my-app:latest .
-        docker push ${{ secrets.DOCKERHUB_USERNAME }}/my-app:latest
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/my-app:latest .
 
-    # 🛠️ Build and push to Private ECR
-    - name: Build and Push to Private ECR
+    - name: Build Docker image
       run: |
-        IMAGE_TAG=${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:latest
-        docker build -t "$IMAGE_TAG" .
-        docker push "$IMAGE_TAG"
+       IMAGE_TAG=${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:latest
+       docker build -t "$IMAGE_TAG" .
+    
+    - name: Push Docker image to private ECR
+      run: |
+       IMAGE_TAG=${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:latest
+       docker push "$IMAGE_TAG"
 
-    # 🛠️ Build and push to ECR Public
-    - name: Build and Push to ECR Public
+    - name: Build Docker image
       run: |
-        IMAGE_TAG=public.ecr.aws/${{ secrets.ECR_PUBLIC_REGISTRY_ALIAS }}/${{ secrets.ECR_PUBLIC_REPOSITORY }}:latest
-        docker build -t "$IMAGE_TAG" .
-        docker push "$IMAGE_TAG"
+       IMAGE_TAG=${{ secrets.ECR_PUBLIC_REGISTRY_ALIAS }}/${{ secrets.ECR_PUBLIC_REPOSITORY }}:latest
+       docker build -t "$IMAGE_TAG" .
+       
+    - name: Push Docker image to ECR Public
+      run: |
+        IMAGE_TAG=${{ secrets.ECR_PUBLIC_REGISTRY_ALIAS }}/${{ secrets.ECR_PUBLIC_REPOSITORY }}:latest
+        docker push $IMAGE_TAG
+        
