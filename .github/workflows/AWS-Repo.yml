@@ -46,6 +46,6 @@ jobs:
        
     - name: Push Docker image to ECR Public
       run: |
-        IMAGE_TAG=public.ecr.aws/${{ secrets.ECR_PUBLIC_REGISTRY_ALIAS }}/${{ secrets.ECR_PUBLIC_REPOSITORY }}:latest
+        IMAGE_TAG=${{ secrets.ECR_PUBLIC_REGISTRY_ALIAS }}/${{ secrets.ECR_PUBLIC_REPOSITORY }}:latest
         docker push $IMAGE_TAG
         
