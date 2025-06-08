@@ -39,7 +39,13 @@ jobs:
        IMAGE_TAG=${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:latest
        docker build -t "$IMAGE_TAG" .
     
-    - name: Push Docker image to ECR
+    - name: Push Docker image to private ECR
       run: |
        IMAGE_TAG=${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:latest
        docker push "$IMAGE_TAG"
+       
+    - name: Push Docker image to ECR Public
+      run: |
+        IMAGE_TAG=public.ecr.aws/${{ secrets.ECR_PUBLIC_REGISTRY_ALIAS }}/${{ secrets.ECR_PUBLIC_REPOSITORY }}:latest
+        docker push $IMAGE_TAG
+        
