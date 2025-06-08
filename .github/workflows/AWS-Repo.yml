@@ -47,7 +47,7 @@ jobs:
     - name: Build Docker image
       run: |
        IMAGE_TAG=${{ secrets.ECR_PUBLIC_REGISTRY_ALIAS }}/${{ secrets.ECR_PUBLIC_REPOSITORY }}:latest
-       docker build -t "$IMAGE_TAG" 
+       docker build -t "$IMAGE_TAG" .
        
     - name: Push Docker image to ECR Public
       run: |
